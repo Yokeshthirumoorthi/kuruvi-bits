@@ -17,6 +17,6 @@
 #!/bin/bash -e
 
 PATH=$PATH:$GOPATH/bin
-protodir=./helloworld
+protodir=./pb
 
-protoc --go_out=plugins=grpc:helloworld -I $protodir $protodir/helloworld.proto
+protoc --go_out=plugins=grpc:pb -I $protodir $protodir/kuruvi.proto
