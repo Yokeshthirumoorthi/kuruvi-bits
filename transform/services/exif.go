@@ -20,7 +20,7 @@
 package services
 
 import (
-	"fmt"
+	// "fmt"
 	"context"
 	"log"
 	// "os"
@@ -29,45 +29,14 @@ import (
 	"google.golang.org/grpc"
 	// pb "google.golang.org/grpc/examples/helloworld/helloworld"
 	pb "github.com/kuruvi-bits/transform/pb"
+	utils "github.com/kuruvi-bits/transform/utils"
 )
 
 const (
-	address     = "192.168.1.100:8003"
-	// defaultName = "world"
-	CADDT_SERVER_ENDPOINT = "192.168.1.100:2015"
-	UPLOADS_VOL = "album-uploads"
-	RESIZED_VOL = "album-resized"	
-	FACES_VOL = "album-faces"
+	address = "192.168.1.100:8003"
 )
 
-type Message struct {
-	AlbumName string
-	PhotoName string
-}
-
-type URL struct {
-	Upload string
-	Resized string
-	Faces string
-}
-
-func GetURL(message Message) URL {
-	albumName := message.AlbumName
-	photoName := message.PhotoName
-	server := "http://" + CADDT_SERVER_ENDPOINT + "/" 
-	uploadURL := server + UPLOADS_VOL + "/" + albumName + "/uploads/" + photoName
-	resizedURL := server + RESIZED_VOL + "/" + albumName + "/" + photoName
-	facesURL := server + FACES_VOL + "/" + albumName + "/" + photoName
-	fmt.Println(uploadURL)
-	url := URL{
-		Upload: uploadURL,
-		Resized: resizedURL,
-		Faces: facesURL,
-	}
-	return url
-}
-
-func Exif(message Message) *pb.ExifData {
+func Exif(message utils.Message) *pb.ExifData {
 	// Set up a connection to the server.
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
@@ -79,7 +48,7 @@ func Exif(message Message) *pb.ExifData {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	Url := GetURL(message).Upload
+	Url := utils.GetURL(message).Upload
 
 	exifData, err := c.ExtractExif(ctx, &pb.PhotoURL{Url: Url})
 
