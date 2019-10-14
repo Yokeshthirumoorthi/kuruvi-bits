@@ -36,12 +36,41 @@ import (
 
 const (
 	FACE_DETECT_ENDPOINT = "192.168.1.100:8006"
+	FACE_DESCRIBE_ENDPOINT = "192.168.1.100:8009"
 )
+
+func DescribeFace(message utils.Message) {
+	// Set up a connection to the server.
+	conn, err := grpc.Dial(FACE_DESCRIBE_ENDPOINT, grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer conn.Close()
+	c := pb.NewFaceDescribeClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	// Url := utils.GetResizedVolPath(message)
+
+	faceDescription, err := c.DescribeFaces(ctx, &pb.DescribeFaceRequest{
+		AlbumName: message.AlbumName,
+		PhotoName: message.PhotoName,
+	})
+
+	if err != nil {
+		log.Fatalf("could not greet: %v", err)
+	}
+
+	fmt.Println("Face describe", faceDescription)
+	// return faceBoxes	
+}
 
 func CropFace(message utils.Message, boundingBox *pb.BoundingBox, index int) {
 	albumName := message.AlbumName
-    photoName := message.PhotoName
-    path := fmt.Sprintf("./%s/%d_%s", albumName, index, photoName)
+	photoName := message.PhotoName
+	faceName  := fmt.Sprintf("%d_%s", index, photoName)
+    path := fmt.Sprintf("./%s/%s", albumName, faceName)
     utils.CreateDirIfNotExist(albumName)
 
     url := utils.GetFaceCropURL(message, boundingBox)
@@ -63,7 +92,14 @@ func CropFace(message utils.Message, boundingBox *pb.BoundingBox, index int) {
     _, err = io.Copy(file, response.Body)
     if err != nil {
         log.Fatal(err)
-    }
+	}
+	
+	faceMessage := utils.Message{
+		AlbumName: albumName,
+		PhotoName: faceName,
+	}
+
+	DescribeFace(faceMessage)
 
     fmt.Println("Success!")
 }
