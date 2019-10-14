@@ -23,8 +23,10 @@ import (
 	"fmt"
 	"context"
 	"log"
-	// "os"
+	"os"
 	"time"
+    "io"
+    "net/http"
 	// "encoding/json"
 	"google.golang.org/grpc"
 	// pb "google.golang.org/grpc/examples/helloworld/helloworld"
@@ -35,6 +37,36 @@ import (
 const (
 	FACE_DETECT_ENDPOINT = "192.168.1.100:8006"
 )
+
+func CropFace(message utils.Message, boundingBox *pb.BoundingBox, index int) {
+	albumName := message.AlbumName
+    photoName := message.PhotoName
+    path := fmt.Sprintf("./%s/%d_%s", albumName, index, photoName)
+    utils.CreateDirIfNotExist(albumName)
+
+    url := utils.GetFaceCropURL(message, boundingBox)
+
+    response, e := http.Get(url)
+    if e != nil {
+        log.Fatal(e)
+    }
+    defer response.Body.Close()
+
+    //open a file for writing
+    file, err := os.Create(path)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer file.Close()
+
+    // Use io.Copy to just dump the response body to the file. This supports huge files
+    _, err = io.Copy(file, response.Body)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    fmt.Println("Success!")
+}
 
 func DetectFaces(message utils.Message) *pb.BoundingBoxes {
 	// Set up a connection to the server.

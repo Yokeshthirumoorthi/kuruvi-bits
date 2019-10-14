@@ -17,6 +17,9 @@ func main() {
 			PhotoName: photoName,
 		}
 		faces := services.DetectFaces(message)
+		for index, boundingBox := range faces.Boxes {
+			services.CropFace(message, boundingBox, index)
+		}
 		result, _ := json.Marshal(&faces)
 		rw.WriteHeader(http.StatusOK)
  	    rw.Write(result)
