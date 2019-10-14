@@ -14,8 +14,8 @@ const (
 )
 
 type Message struct {
-	AlbumName string
-	PhotoName string
+	AlbumName string `json:"albumName"`
+	PhotoName string `json:"photoName"`
 }
 
 type URL struct {

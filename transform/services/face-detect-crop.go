@@ -67,11 +67,10 @@ func DescribeFace(message utils.Message) {
 }
 
 func CropFace(message utils.Message, boundingBox *pb.BoundingBox, index int) {
-	albumName := message.AlbumName
-	photoName := message.PhotoName
-	faceName  := fmt.Sprintf("%d_%s", index, photoName)
-    path := fmt.Sprintf("./%s/%s", albumName, faceName)
-    utils.CreateDirIfNotExist(albumName)
+	dirPath := fmt.Sprintf("%s/%s", utils.FACES_VOL, message.AlbumName)
+	fileName  := fmt.Sprintf("%d_%s", index, message.PhotoName)
+    filePath := fmt.Sprintf("%s/%s", dirPath, fileName)
+    utils.CreateDirIfNotExist(dirPath)
 
     url := utils.GetFaceCropURL(message, boundingBox)
 
@@ -82,7 +81,7 @@ func CropFace(message utils.Message, boundingBox *pb.BoundingBox, index int) {
     defer response.Body.Close()
 
     //open a file for writing
-    file, err := os.Create(path)
+    file, err := os.Create(filePath)
     if err != nil {
         log.Fatal(err)
     }
@@ -95,8 +94,8 @@ func CropFace(message utils.Message, boundingBox *pb.BoundingBox, index int) {
 	}
 	
 	faceMessage := utils.Message{
-		AlbumName: albumName,
-		PhotoName: faceName,
+		AlbumName: message.AlbumName,
+		PhotoName: fileName,
 	}
 
 	DescribeFace(faceMessage)

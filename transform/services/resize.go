@@ -10,10 +10,9 @@ import (
 )
 
 func Resize(message utils.Message) {
-    albumName := message.AlbumName
-    photoName := message.PhotoName
-    path := "./" + albumName + "/" + photoName
-    utils.CreateDirIfNotExist(albumName)
+    dirPath := fmt.Sprintf("%s/%s", utils.RESIZED_VOL, message.AlbumName)
+    filePath := fmt.Sprintf("%s/%s", dirPath, message.PhotoName)
+    utils.CreateDirIfNotExist(dirPath)
 
     url := utils.GetResizeURL(message)
 
@@ -24,7 +23,7 @@ func Resize(message utils.Message) {
     defer response.Body.Close()
 
     //open a file for writing
-    file, err := os.Create(path)
+    file, err := os.Create(filePath)
     if err != nil {
         log.Fatal(err)
     }
