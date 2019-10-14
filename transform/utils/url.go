@@ -46,3 +46,8 @@ func GetResizeURL(message Message) string {
 	resizedURL := "http://" + CADDT_SERVER_ENDPOINT + "/" + signedURL
 	return resizedURL
 }
+
+func GetResizedVolPath(message Message) string {
+	path := RESIZED_VOL + "/" + message.AlbumName + "/" + message.PhotoName
+	return path
+}

@@ -9,6 +9,18 @@ import (
 )
 
 func main() {
+	http.HandleFunc("/faceDetect", func(rw http.ResponseWriter, req *http.Request) {
+		albumName := req.URL.Query().Get("albumName")
+		photoName := req.URL.Query().Get("photoName")
+		message := utils.Message{
+			AlbumName: albumName,
+			PhotoName: photoName,
+		}
+		faces := services.DetectFaces(message)
+		result, _ := json.Marshal(&faces)
+		rw.WriteHeader(http.StatusOK)
+ 	    rw.Write(result)
+	})
 	http.HandleFunc("/exif", func(rw http.ResponseWriter, req *http.Request) {
 		albumName := req.URL.Query().Get("albumName")
 		photoName := req.URL.Query().Get("photoName")
